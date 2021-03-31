@@ -6,14 +6,30 @@ import {
 } from "./State";
 import { ChessBoardState, ChessBoardOptions } from './ChessBoardState';
 import { p5lib } from './index'; // import p5lib singleton
+import { ImageLoader } from './ImageLoader';
+
+const PIECES_PATH = 'assets/pieces.svg';
+const BISHOP_PATH = 'assets/bB.svg';
+
+function drawImages(g: GlobalContext) {
+  g.context2d!.drawImage(g.bishopImage, 100, 0, 64, 64);
+  g.context2d!.drawImage(g.bishopImageFromSVGElement, 200, 0, 64, 64);
+  const figureSize = 45;
+  const targetSize = 100;
+  g.context2d!.drawImage(g.svgSpriteImage, 0, 0, figureSize, figureSize, 0, 0, targetSize, targetSize);
+}
 
 export class GlobalContext {
   public objects: any[];
   public canvas: HTMLCanvasElement | null;
   public context2d: CanvasRenderingContext2D | null;
-  public img?: any;
+  public bishopImageFromSVGElement?: any;
+  public bishopImage?: any;
+  public svgSpriteImage?: any;
+  imageLoader: ImageLoader;
   constructor() {
     this.objects = [];
+    this.imageLoader = new ImageLoader();
     this.canvas = document.getElementById("defaultCanvas0") as HTMLCanvasElement;
     this.context2d = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     if (this.canvas === null) {
@@ -22,30 +38,26 @@ export class GlobalContext {
     if (this.context2d === null) {
       console.warn(this.context2d, 'is null');
     }
-  }
-
-  loadImage() {
     const svg = document.querySelector('svg');
     if (svg === null) {
       console.warn("svg not found");
       return;
     }
 
-    // get svg data
-    const xml = new XMLSerializer().serializeToString(svg);
-
-    // make it base64
-    const svg64 = btoa(xml);
-    const b64Start = 'data:image/svg+xml;base64,';
-    this.img = new Image();
-    var image64 = b64Start + svg64; // prepend a "header"
-    this.img.src = image64;
-
-    this.img.onload = () => {
-      console.log('globalContext.img loaded');
+    this.svgSpriteImage = this.imageLoader.addLoadImageTask(PIECES_PATH, () => {
+      console.log("Sprite image loaded");
+    });
+    this.bishopImageFromSVGElement = this.imageLoader.loadImageFromSVG(svg, () => {
+      console.log("Bishop image loaded from svg on page");
+    });
+    this.bishopImage = this.imageLoader.addLoadImageTask(BISHOP_PATH, () => {
+      console.log("Bishop image loaded from file");
+    });
+    this.imageLoader.load(() => {
+      console.log("GlobalContext: All images loaded");
       this.init();
       this.show();
-    }
+    })
   }
 
   init() {
@@ -53,14 +65,8 @@ export class GlobalContext {
     const state1 = new States.DigitState();
     const state2 = new States.DigitState({ value: -10 }); // not valid state
     this.addDigitStateNode({ x: 200, y: 400 }, { value: 3 });
-    // const state4 = new States.TupleState({ x: 2, y: 4 });
-
     this.objects.push(new MyNode(state1, { x: 100, y: 200 }));
     this.objects.push(new MyNode(state2, { x: 100, y: 300 }));
-    // this.objects.push(new MyNode(state3, { x: 200, y: 400 }));
-    // this.objects.push(new MyNode(state4, { x: 200, y: 300 }));
-    // this.addNode({x: 100, y: 200}, States.DigitState, 2);
-    // this.addNode({x: 100, y: 300}, States.DigitState, 3);
     this.addNode({x: 200, y: 200}, States.TupleState, { x: 2, y: 4 });
 
     const chessBoard = this.addChessBoardStateNode(
@@ -103,11 +109,12 @@ export class GlobalContext {
   }
 
   show() {
-    p5lib.background(200);
     if (this.canvas === null) {
       console.warn('canvas not initialized!');
     }
-    // console.assert(p5lib.drawingContext === this.context2d);
+    console.assert(p5lib.drawingContext === this.context2d);
+    p5lib.background(200);
+    drawImages(this);
     this.objects.forEach(o => o.show());
   }
 }

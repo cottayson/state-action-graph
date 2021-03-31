@@ -8,7 +8,6 @@ export let loadFunc = (p: p5) => {
     p.createCanvas(500, 500);
     p.noLoop();
     globalContext = new GlobalContext();
-    globalContext.loadImage();
   }
 
   p.draw = () => {
