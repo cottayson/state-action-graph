@@ -1,16 +1,17 @@
 import * as p5 from "p5";
 import { GlobalContext } from "./GlobalContext";
 
-let global: GlobalContext;
+export let globalContext: GlobalContext;
 
 export let loadFunc = (p: p5) => {
   p.setup = () => {
     p.createCanvas(500, 500);
     p.noLoop();
-    global = new GlobalContext();
+    globalContext = new GlobalContext();
+    globalContext.loadImage();
   }
 
   p.draw = () => {
-    global.show();
+    
   }
 }

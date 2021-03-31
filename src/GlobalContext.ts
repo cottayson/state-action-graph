@@ -9,9 +9,43 @@ import { p5lib } from './index'; // import p5lib singleton
 
 export class GlobalContext {
   public objects: any[];
+  public canvas: HTMLCanvasElement | null;
+  public context2d: CanvasRenderingContext2D | null;
+  public img?: any;
   constructor() {
     this.objects = [];
-    this.init();
+    this.canvas = document.getElementById("defaultCanvas0") as HTMLCanvasElement;
+    this.context2d = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+    if (this.canvas === null) {
+      console.warn(this.canvas, 'is null');
+    }
+    if (this.context2d === null) {
+      console.warn(this.context2d, 'is null');
+    }
+  }
+
+  loadImage() {
+    const svg = document.querySelector('svg');
+    if (svg === null) {
+      console.warn("svg not found");
+      return;
+    }
+
+    // get svg data
+    const xml = new XMLSerializer().serializeToString(svg);
+
+    // make it base64
+    const svg64 = btoa(xml);
+    const b64Start = 'data:image/svg+xml;base64,';
+    this.img = new Image();
+    var image64 = b64Start + svg64; // prepend a "header"
+    this.img.src = image64;
+
+    this.img.onload = () => {
+      console.log('globalContext.img loaded');
+      this.init();
+      this.show();
+    }
   }
 
   init() {
@@ -70,6 +104,10 @@ export class GlobalContext {
 
   show() {
     p5lib.background(200);
+    if (this.canvas === null) {
+      console.warn('canvas not initialized!');
+    }
+    // console.assert(p5lib.drawingContext === this.context2d);
     this.objects.forEach(o => o.show());
   }
 }

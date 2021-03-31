@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
-    "forceConsistentCasingInFileNames": false
+    "forceConsistentCasingInFileNames": false,
+    "typeRoots": ["./node_modules/@types"],
   }
 }
