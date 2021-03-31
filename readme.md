@@ -1,11 +1,15 @@
-## Pre
-
-* If `dist` is empty copy `assets` folder to `dist/assets`
+## Pre build/dev
+If `dist` folder is empty: copy `assets` folder to `dist/assets`
 
 ## Build
-
-* `npm run build`
+```
+npm run build
+```
 
 ## Development
+```
+npm start
+```
 
-* `npm start`
+## Pieces
+<https://github.com/ornicar/lila/blob/master/public/piece/alpha/bB.svg>
